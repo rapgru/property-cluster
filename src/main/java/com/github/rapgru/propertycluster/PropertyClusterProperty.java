@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Represents a cluster property
- * @param <T>
+ * @param <T> type of this cluster property
  */
 public class PropertyClusterProperty<T> {
 
@@ -129,6 +129,7 @@ public class PropertyClusterProperty<T> {
      * Note: Relations are only stored at their from side!
      *
      * @param rel the relation to add
+     * @throws PropertyClusterConfigException configuration exception
      */
     public void addRelation(PropertyClusterRelation<T, ?> rel) throws PropertyClusterConfigException
     {
