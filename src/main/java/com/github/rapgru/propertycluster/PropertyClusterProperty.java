@@ -1,5 +1,6 @@
 package com.github.rapgru.propertycluster;
 
+import com.github.rapgru.propertycluster.configuration.PropertyClusterConfigException;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
@@ -10,6 +11,10 @@ import java.util.Comparator;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Represents a cluster property
+ * @param <T>
+ */
 public class PropertyClusterProperty<T> {
 
     private String name;
@@ -21,6 +26,11 @@ public class PropertyClusterProperty<T> {
     private PropertyCluster cluster;
     private Class valueClass;
 
+    /**
+     * Represents an pseudo property as object and adds the functionality of storing, activating and deactivating an change listener
+     *
+     * @param <PT> the pseudo property's type
+     */
     public class PropertyClusterPseudoProperty<PT> extends SimpleObjectProperty<PT>
     {
         ChangeListener<PT> clusterListener;
@@ -44,42 +54,52 @@ public class PropertyClusterProperty<T> {
 
     }
 
-    PropertyClusterProperty(String name, T value, PropertyCluster cluster) {
+    /**
+     * Construct a new cluster property
+     * @param name name of the cluster property
+     * @param value inital value of the cluster property
+     * @param cluster the cluster this cluster property belongs to
+     *
+     * @see com.github.rapgru.propertycluster.configuration.PropertyClusterRegisterPhase#add(String, Object) corresponding configuration method
+     */
+    public PropertyClusterProperty(String name, T value, PropertyCluster cluster) {
         this.name = name;
         this.cluster = cluster;
-        this.value = new AtomicReference<T>(value);
+        this.value = new AtomicReference<>(value);
         this.valueClass = value.getClass();
     }
 
+    /**
+     * Gets the name of a cluster property
+     * @return the name
+     */
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 
     Property<T> pseudoProperty() {
         PropertyClusterPseudoProperty<T> prop = new PropertyClusterPseudoProperty<>(value.get());
 
         pseudoProperties.add(prop);
-        prop.setClusterListener((observable, oldValue, newValue) -> pseudoQueue.update(new PropertyClusterPropertyChange<T>(newValue, prop,true)));
+        prop.setClusterListener((observable, oldValue, newValue) -> pseudoQueue.update(new PropertyClusterPropertyChange<>(newValue, prop,true)));
         prop.activateClusterListener();
-        return (Property<T>)prop;
+        return prop;
     }
 
-    public void set(T value){
+
+    void set(T value){
         pseudoQueue.update(new PropertyClusterPropertyChange<>(value, null, false));
 
         System.out.println("normal set");
 
-        pseudoProperties.forEach(pseudoProp -> {
+        pseudoProperties.forEach(pseudoProp ->
             Platform.runLater(() -> {
                 ((PropertyClusterPseudoProperty<T>)pseudoProp).deactivateClusterListener();
                 pseudoProp.setValue(value);
                 ((PropertyClusterPseudoProperty<T>)pseudoProp).activateClusterListener();
-            });
-        });
+            })
+        );
 
         relations.stream().sorted(Comparator.comparingInt(PropertyClusterRelation::getPriority)).forEach(rel -> rel.apply(value));
     }
@@ -89,13 +109,13 @@ public class PropertyClusterProperty<T> {
 
         System.out.println("set by relation");
 
-        pseudoProperties.forEach(pseudoProp -> {
+        pseudoProperties.forEach(pseudoProp ->
             Platform.runLater(() -> {
                 ((PropertyClusterPseudoProperty<T>)pseudoProp).deactivateClusterListener();
                 pseudoProp.setValue(value);
                 ((PropertyClusterPseudoProperty<T>)pseudoProp).activateClusterListener();
-            });
-        });
+            })
+        );
 
         relations.stream()
                 .filter(rel -> rel.getTo() != by.getFrom())
@@ -104,8 +124,15 @@ public class PropertyClusterProperty<T> {
                 .forEach(rel -> rel.apply(value));
     }
 
-    void addRelation(PropertyClusterRelation<T, ?> rel)
+    /**
+     * Add a relation to a cluster property
+     * Note: Relations are only stored at their from side!
+     *
+     * @param rel the relation to add
+     */
+    public void addRelation(PropertyClusterRelation<T, ?> rel) throws PropertyClusterConfigException
     {
+        if(rel.getFrom() != this) throw new PropertyClusterConfigException();
         relations.add(rel);
     }
 
@@ -113,7 +140,7 @@ public class PropertyClusterProperty<T> {
         return value;
     }
 
-    public PropertyCluster getCluster() {
+    PropertyCluster getCluster() {
         return cluster;
     }
 

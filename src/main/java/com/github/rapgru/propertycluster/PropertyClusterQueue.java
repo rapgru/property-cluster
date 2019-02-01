@@ -2,7 +2,7 @@ package com.github.rapgru.propertycluster;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class PropertyClusterQueue<T> {
+class PropertyClusterQueue<T> {
 
     private PropertyClusterProperty<T> property;
     private LinkedBlockingQueue<PropertyClusterPropertyChange<T>> queue;
@@ -30,7 +30,7 @@ public class PropertyClusterQueue<T> {
         worker.start();
     }
 
-    public void update(PropertyClusterPropertyChange<T> change){
+    void update(PropertyClusterPropertyChange<T> change){
         try {
             System.out.println("Putting to queue");
             queue.put(change);
