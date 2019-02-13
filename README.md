@@ -161,3 +161,7 @@ txt.textProperty.bindBiDirectional((Property<String>)cluster.p("aPropertyOfTypeS
 ```
 
 Note that in the second example you need to do an explicit type cast, as the type gets lost when all cluster properties are stored in the cluster object. As long as you register cluster properties manually you should always know which type is encapsulated in a cluster property.
+
+## API Documentation
+
+All API functions of the latest release are documented in the [library's javadocs](https://jitpack.io/com/github/rapgru/property-cluster/latest/javadoc/). Also for each release there's a seperate javadoc link in the release description.
