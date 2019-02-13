@@ -49,8 +49,14 @@ public class PropertyCluster {
      * @param name cluster property name
      * @return a pseudo property, need a type cast to the correct type
      */
-    public Property<?> p(String name){
-        return properties.get(name).pseudoProperty();
+    public <T> Property<T> p(String name){
+        Property<T> p;
+        try {
+            p = (Property<T>)properties.get(name).pseudoProperty();
+        } catch (ClassCastException ex){
+            throw new WrongTypeContextException("Used an pseudo property, but the given or inferred type of the p() method call doesn't match the type of the cluster property");
+        }
+        return p;
     }
 
     /**

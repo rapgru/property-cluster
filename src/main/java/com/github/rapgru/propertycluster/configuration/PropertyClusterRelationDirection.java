@@ -1,6 +1,6 @@
 package com.github.rapgru.propertycluster.configuration;
 
-public enum PropertyClusterRelationDirection {
+enum PropertyClusterRelationDirection {
     ATOB,
     BTOA
 }

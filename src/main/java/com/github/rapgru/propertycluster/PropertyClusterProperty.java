@@ -131,9 +131,9 @@ public class PropertyClusterProperty<T> {
      * @param rel the relation to add
      * @throws PropertyClusterConfigException configuration exception
      */
-    public void addRelation(PropertyClusterRelation<T, ?> rel) throws PropertyClusterConfigException
+    public <R> void addRelation(PropertyClusterRelation<T, R> rel)
     {
-        if(rel.getFrom() != this) throw new PropertyClusterConfigException();
+        if(rel.getFrom() != this) throw new PropertyClusterConfigException("The relation's \"from\" property is not " + getName() );
         relations.add(rel);
     }
 

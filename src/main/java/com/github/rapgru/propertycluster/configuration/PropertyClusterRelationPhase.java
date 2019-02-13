@@ -65,13 +65,13 @@ public class PropertyClusterRelationPhase {
              * @return object used for configuring a relation
              * @throws PropertyClusterConfigException if the argument is none of the two names participating in the relation currently in configuration
              */
-            public PropertyClusterRelationBuilder from(String from) throws PropertyClusterConfigException{
+            public PropertyClusterRelationBuilder from(String from) {
                 if(a.getName().equals(from)){
                     relBuilder.setDirection(PropertyClusterRelationDirection.ATOB);
                 } else if(b.getName().equals(from)) {
                      relBuilder.setDirection(PropertyClusterRelationDirection.BTOA);
                 } else {
-                    throw new PropertyClusterConfigException();
+                    throw new PropertyClusterConfigException("The given \"from\"-name " + from + " isn't one of the two cluster properties taking part in this relation("+a.getName()+" and "+b.getName()+")");
                 }
                 return relBuilder;
             }
@@ -82,13 +82,13 @@ public class PropertyClusterRelationPhase {
              * @return object used for configuring a relation
              * @throws PropertyClusterConfigException if the argument is none of the two names participating in the relation currently in configuration
              */
-            public PropertyClusterRelationBuilder to(String to) throws PropertyClusterConfigException{
+            public PropertyClusterRelationBuilder to(String to) {
                 if(a.getName().equals(to)){
                     relBuilder.setDirection(PropertyClusterRelationDirection.BTOA);
                 } else if(b.getName().equals(to)) {
                     relBuilder.setDirection(PropertyClusterRelationDirection.ATOB);
                 } else {
-                    throw new PropertyClusterConfigException();
+                    throw new PropertyClusterConfigException("The given \"to\"-name " + to + " isn't one of the two cluster properties taking part in this relation("+a.getName()+" and "+b.getName()+")");
                 }
                 return relBuilder;
             }
@@ -157,10 +157,10 @@ public class PropertyClusterRelationPhase {
          * @return object for configuring relations
          * @throws PropertyClusterConfigException if a mandatory relation setting wasn't specified
          */
-        public PropertyClusterRelationPhase finishRelation() throws PropertyClusterConfigException{
-            if(direction == null) throw new PropertyClusterConfigException();
-            if(prev == null) throw new PropertyClusterConfigException();
-            if(calculation == null) throw new PropertyClusterConfigException();
+        public PropertyClusterRelationPhase finishRelation() {
+            if(direction == null) throw new PropertyClusterConfigException("The direction is not specified for the relation between " + a.getName() + " and " + b.getName());
+            if(prev == null) prev = (c) -> true;
+            if(calculation == null) throw new PropertyClusterConfigException("The calculation is not specified for the relation " + ((direction==PropertyClusterRelationDirection.ATOB)?(a.getName()+"->"+b.getName()):(b.getName()+"->"+a.getName())));
             if(direction == PropertyClusterRelationDirection.ATOB){
                 PropertyClusterRelation rel = new PropertyClusterRelation(a, b, calculation, prev, priority);
                 a.addRelation(rel);
